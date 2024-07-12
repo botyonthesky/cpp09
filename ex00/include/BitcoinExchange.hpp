@@ -6,7 +6,7 @@
 /*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 10:52:36 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/07/12 07:27:16 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/07/12 11:52:45 by tmaillar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class BitcoinExchange
     
         std::string                         _fileName;
         std::ifstream                       _dataBase;                     
-        std::map<std::string, float>        _dataDate;
+        std::map<int, float>                _dataDate;
             
     public:
         
@@ -41,7 +41,13 @@ class BitcoinExchange
         void            dataBase(void);
         void            dataInput(std::string fileName);
         bool            checkDate(std::string& date);
-        
+        bool            isLeap(int year);
+        bool            isFebValid(int year, int month, int day);
+        bool            isDayValid(int month, int day);
+        int             checkValue(float value);
+        bool            checkFormat(std::string str);
+        void            displayResult(std::string date, float value);
+        float           findResult(std::string date, float value);
         std::string     getFileName(void);
         void            setFileName(std::string fileName);
 

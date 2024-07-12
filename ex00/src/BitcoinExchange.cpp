@@ -6,7 +6,7 @@
 /*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 10:53:06 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/07/12 07:41:04 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/07/12 13:34:21 by tmaillar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,16 +85,80 @@ bool        BitcoinExchange::checkDate(std::string& date)
         return (false);
     if (month < 1 || month > 12)
         return (false);
-    if (day < 1 || day > 31)
+    if (!isFebValid(year, month, day))
         return (false);
-    
+    if (!isDayValid(month, day))
+        return (false);
+    return (true);
+}
+bool        BitcoinExchange::isDayValid(int month, int day)
+{
+    if (month > 0 && month < 8)
+    {
+        if (month % 2 == 0 && (day < 1 || day > 30))
+            return (false);
+        else if (day < 1 || day > 31)
+            return (false);
+    }
+    else if (month > 7 && month < 13)
+    {
+        if (month % 2 == 1 && (day < 1 || day > 30))
+            return (false);
+        else if (day < 1 || day > 31)
+            return (false);
+    }
+    return (true);
+}
+
+
+bool        BitcoinExchange::isFebValid(int year, int month, int day)
+{
+    if (isLeap(year) && month == 2 && (day < 1 || day > 29))
+        return (false);
+    if (!isLeap(year) && month == 2 && (day < 1 || day > 28))
+        return (false);
+    return (true);
+}
+
+bool        BitcoinExchange::isLeap(int year)
+{
+    if (year % 4 == 0) 
+    {
+        if (year % 100 == 0)
+        {
+            if (year % 400 == 0)
+                return true;
+            else 
+                return (false);
+        }
+        else 
+            return true;
+    }
+    else 
+        return false;
+}
+
+int         BitcoinExchange::checkValue(float value)
+{
+    if (value > 1000)
+        return (2);
+    if (value < 0)
+        return (1);
+    return (0);
+}
+
+bool        BitcoinExchange::checkFormat(std::string str)
+{
+    if (str[4] != '-' || str[7] != '-')
+        return (false);
+    if (str[10] != ' ' || str[11] != '|' || str[12] != ' ')
+        return (false);
     return (true);
 }
 
 void        BitcoinExchange::dataInput(std::string fileName)
 {
     (void)fileName;
-    std::cout << "Input data" << std::endl;
     std::ifstream input;
     input.open(_fileName.c_str());
     if (!input)
@@ -103,34 +167,84 @@ void        BitcoinExchange::dataInput(std::string fileName)
     {
         size_t sepa;
         std::string line;
-        char *end;
         while(std::getline(input, line))
         {
-            
-            line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
-            sepa = line.find("|");
-            if (line == "date|value")
+            if (line == "date | value")
                 continue ;
-            if (sepa != std::string::npos)
+            try
             {
-                std::string date = line.substr(0, sepa);
-                std::cout << date << std::endl;
-                if (!checkDate(date))
+                if (!checkFormat(line))
                 {
                     badInput ex;
-                    ex.setMessage("Error: bad input => " + date);
+                    ex.setMessage("Error: bad input => " + line);
                     throw ex;
                 }
-                std::string values = line.substr(sepa + 1);
-                std::cout << values << std::endl;
-                float value = std::strtof(values.c_str(), &end);
-                std::cout << value << std::endl;
-                // _dataInput[date] = value;
-                
+                line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+                sepa = line.find("|");
+                if (sepa != std::string::npos)
+                {
+                    std::string date = line.substr(0, sepa);
+                    if (!checkDate(date))
+                    {
+                        badInput ex;
+                        ex.setMessage("Error: bad input => " + date);
+                        throw ex;
+                    }
+                    std::string svalue = line.substr(sepa + 1, std::string::npos);
+                    char *end;
+                    float value = std::strtof(svalue.c_str(), &end);
+                    if (checkValue(value) == 1)
+                    {
+                        badInput ex;
+                        ex.setMessage("Error : not a positive number.");
+                        throw ex;
+                    }
+                    if (checkValue(value) == 2)
+                    {
+                        badInput ex;
+                        ex.setMessage("Error : too large number.");
+                        throw ex;
+                    }
+                    displayResult(date, value);
+                }
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
             }
         }
     }
 }
+float       BitcoinExchange::findResult(std::string date, float value)
+{
+    (void)date;
+    (void)value;
+    float result = 0;
+    date.erase(std::remove_if(date.begin(), date.end(), std::bind2nd(std::equal_to<char>(), '-')), date.end());
+    int datei = atoi(date.c_str());
+    for(std::map<int, float>::iterator it = _dataDate.begin(); it != _dataDate.end(); it++)
+    {
+        if (it->first == datei)
+        {
+            result = value * it->second;
+            return (result);
+        }
+        else
+        {
+            
+        }
+    }
+    return (result);
+}
+
+
+void        BitcoinExchange::displayResult(std::string date, float value)
+{
+    std::cout << date << " => " << value << " = ";
+    std::cout << findResult(date, value) << std::endl;
+    // std::cout << std::endl;
+}
+
 
 void        BitcoinExchange::dataBase()
 {
@@ -144,6 +258,8 @@ void        BitcoinExchange::dataBase()
         char* end;
         while(std::getline(_dataBase, line))
         {
+            if (line == "date,exchange_rate")
+                continue;
             sepa = line.find(",");
             if (sepa != std::string::npos)
             {
@@ -151,7 +267,11 @@ void        BitcoinExchange::dataBase()
                 std::string values = line.substr(sepa + 1);
                 float value = std::strtof(values.c_str(), &end);
                 // std::cout << date << std::endl;
-                _dataDate.insert(std::make_pair(date, value));
+                date.erase(std::remove_if(date.begin(), date.end(), std::bind2nd(std::equal_to<char>(), '-')), date.end());
+                int datei = atoi(date.c_str());
+                (void)datei;
+                _dataDate.insert(std::make_pair(datei, value));
+                (void)value;
             }
         }
         // for(std::map<std::string, std::string>::iterator it = _dataDate.begin(); it != _dataDate.end(); it++)
