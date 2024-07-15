@@ -6,7 +6,7 @@
 /*   By: botyonthesky <botyonthesky@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 10:05:14 by botyonthesk       #+#    #+#             */
-/*   Updated: 2024/07/15 12:05:42 by botyonthesk      ###   ########.fr       */
+/*   Updated: 2024/07/15 16:51:53 by botyonthesk      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,17 +22,19 @@ RPN::RPN(std::string input) : _input(input)
     std::cout << "RPN cosntructor" << std::endl;
 }
 
-RPN::RPN(const RPN& other)
+RPN::RPN(const RPN& other) :  _input(other._input), _stack(other._stack)
 {
     std::cout << "RPN copy" << std::endl;
-    *this = other;
 }
 
 RPN& RPN::operator=(const RPN& other)
 {
     std::cout << "RPN copy assignment" << std::endl;
     if (this != &other)
-        *this = other;
+    {
+        _input = other._input;
+        _stack = other._stack;
+    }
     return (*this);
 }
 
@@ -53,67 +55,127 @@ void    RPN::manageInput(std::string input)
     _stack = tokens;
 }
 
-
-void        RPN::printStack(void)
-{
-    std::stack<std::string> tmp;
-    tmp = _stack;
-    while (!tmp.empty())
-    {
-        std::cout << tmp.top() << " ";
-        tmp.pop();
-    }
-    std::cout << std::endl;
-}
-
 void    RPN::checkInput(void)
 {
-    
     std::stack<std::string> tmp;
     tmp = _stack;
+    int num = 0;
+    int ope = 0;
     while (!tmp.empty())
     {
-        std::string token;
-        token = tmp.top();
-        if (token.size() > 1)
+        if (!checkToken(tmp.top()))
             throw WrongInput();
-        if (!checkToken(token))
-            throw WrongInput();
+        if (isdigit(tmp.top()[0]))
+            num++;
+        if (isOpe(tmp.top()))
+            ope++;
         tmp.pop();
+    }
+    if (ope + 1 < num)
+        throw NotEnoughOpe();
+    if (ope + 1 > num)
+        throw TooManyOpe();
 }
+
+
+bool            RPN::isOpe(std::string token)
+{
+    if (token == "-" || token == "+" || token == "/" || token == "*")
+        return (true);
+    return (false);
 }
 
 bool            RPN::checkToken(std::string token)
 {
+    if (token.size() > 1)
+        return (false);
     if (!isdigit(token[0]))
     {
-        if (token[0] != '+' || token[0] != '-' || token[0] != '/' || token[0] != '*')
+        if (token[0] != '+' && token[0] != '-' && token[0] != '/' && token[0] != '*')
             return (false);
     }
     return(true);
 }
 
-const char*     RPN::WrongInput::what() const throw()
+int     RPN::addition(int a, int b)
 {
-    return ("Error");
+    return (a + b);
 }
-// void    RPN::checkOperand(std::string calcul)
-// {
-//     (void)calcul;
-// }
+
+int     RPN::soustraction(int a, int b)
+{
+    return (a - b);
+}
+
+int     RPN::multiplication(int a, int b)
+{
+    return (a * b);
+}
+
+int     RPN::division(int a, int b)
+{
+    if (b == 0)
+        throw DivisionByZero();
+    return (a / b);
+}
+void    RPN::makeCalcul(std::string input)
+{
+    std::stack<int> numStack;
+    std::istringstream iss(input);
+    std::string token;
+    while (iss >> token)
+    {
+        if (isOpe(token))
+        {
+            int b = numStack.top();
+            numStack.pop();
+            int a = numStack.top();
+            numStack.pop();
+            if (token == "+")
+                numStack.push(addition(a, b));
+            else if (token == "-")
+                numStack.push(soustraction(a, b));
+            else if (token == "/")
+                numStack.push(division(a, b));
+            else if (token == "*")
+                numStack.push(multiplication(a, b));
+        }
+        else
+            numStack.push(std::atoi(token.c_str()));
+    }    
+    std::cout << numStack.top() << std::endl;   
+}
 
 void    RPN::run(void)
 {
     try
     {
         manageInput(_input);
-        printStack();
         checkInput();
+        makeCalcul(_input);
     }
     catch(const std::exception& e)
     {
         std::cout << e.what() << std::endl;
-    }
-    
-    
+    }   
+}
+
+const char*     RPN::WrongInput::what() const throw()
+{
+    return ("Error : Not valid input");
+}
+
+const char*     RPN::NotEnoughOpe::what() const throw()
+{
+    return ("Error : There is not enough operand");
+}
+
+const char*     RPN::TooManyOpe::what() const throw()
+{
+    return ("Error : There is too many operand");
+}
+
+const char*     RPN::DivisionByZero::what() const throw()
+{
+    return ("Error : Divison by zero is impossible !");
 }
