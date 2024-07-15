@@ -14,7 +14,7 @@
 
 BitcoinExchange::BitcoinExchange(std::string fileName) : _fileName(fileName)
 {
-    std::cout << "Bitcoin Exchange constructor" << std::endl;
+    // std::cout << "Bitcoin Exchange constructor" << std::endl;
 }
 BitcoinExchange::BitcoinExchange(const BitcoinExchange& other)
 {
@@ -32,7 +32,7 @@ BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& other)
 
 BitcoinExchange::~BitcoinExchange()
 {
-    std::cout << "Bitcoin Exchange destructor" << std::endl;
+    // std::cout << "Bitcoin Exchange destructor" << std::endl;
 }
 
 std::string BitcoinExchange::getFileName(void)
@@ -61,15 +61,7 @@ void        BitcoinExchange::badInput::setMessage(const std::string& msg)
 void        BitcoinExchange::run(void)
 {
     dataBase();
-    dataInput(_fileName);
-    // for(std::map<std::string, float>::iterator it = _dataDate.begin(); it != _dataDate.end(); it++)
-    // {
-    //     std::cout << it->first << " -> " << it->second << std::endl;
-    // }
-    // for(std::map<std::string, float>::iterator it = _dataInput.begin(); it != _dataInput.end(); it++)
-    // {
-    //     std::cout << it->first << " -> " << it->second << std::endl;
-    // }
+    dataInput();
 }
 bool        BitcoinExchange::checkDate(std::string& date)
 {
@@ -81,13 +73,22 @@ bool        BitcoinExchange::checkDate(std::string& date)
     int year = atoi(syear.c_str());
     int month = atoi(smonth.c_str());
     int day = atoi(sday.c_str());
-    if (year < 2009 || year > 2022)
-        return (false);
-    if (month < 1 || month > 12)
+    if (!checkDataBase(year, month, day))
         return (false);
     if (!isFebValid(year, month, day))
         return (false);
     if (!isDayValid(month, day))
+        return (false);
+    return (true);
+}
+
+bool        BitcoinExchange::checkDataBase(int year, int month, int day)
+{   
+    if (year < 2009 || year > 2022)
+        return (false);
+    if (month < 1 || month > 12)
+        return (false);
+    if (year == 2009 && month == 01 && day < 2)
         return (false);
     return (true);
 }
@@ -153,12 +154,15 @@ bool        BitcoinExchange::checkFormat(std::string str)
         return (false);
     if (str[10] != ' ' || str[11] != '|' || str[12] != ' ')
         return (false);
+    if (!isdigit(str[13]) && str[13] != '-' && str[13] != '+')
+        return (false);
+    if ((str[13] == '-' || str[13] == '+') && !isdigit(str[14]))
+        return (false);
     return (true);
 }
 
-void        BitcoinExchange::dataInput(std::string fileName)
+void        BitcoinExchange::dataInput()
 {
-    (void)fileName;
     std::ifstream input;
     input.open(_fileName.c_str());
     if (!input)
@@ -177,6 +181,7 @@ void        BitcoinExchange::dataInput(std::string fileName)
                 {
                     badInput ex;
                     ex.setMessage("Error: bad input => " + line);
+                    std::cout << "";
                     throw ex;
                 }
                 line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
@@ -210,15 +215,13 @@ void        BitcoinExchange::dataInput(std::string fileName)
             }
             catch(const std::exception& e)
             {
-                std::cerr << e.what() << '\n';
+                std::cerr << e.what() << std::endl;
             }
         }
     }
 }
 float       BitcoinExchange::findResult(std::string date, float value)
 {
-    (void)date;
-    (void)value;
     float result = 0;
     date.erase(std::remove_if(date.begin(), date.end(), std::bind2nd(std::equal_to<char>(), '-')), date.end());
     int datei = atoi(date.c_str());
@@ -229,9 +232,11 @@ float       BitcoinExchange::findResult(std::string date, float value)
             result = value * it->second;
             return (result);
         }
-        else
+        else if (it->first > datei)
         {
-            
+            it--;
+            result = value * it->second;
+            return (result);
         }
     }
     return (result);
@@ -242,7 +247,6 @@ void        BitcoinExchange::displayResult(std::string date, float value)
 {
     std::cout << date << " => " << value << " = ";
     std::cout << findResult(date, value) << std::endl;
-    // std::cout << std::endl;
 }
 
 
@@ -266,17 +270,10 @@ void        BitcoinExchange::dataBase()
                 std::string date = line.substr(0, sepa);
                 std::string values = line.substr(sepa + 1);
                 float value = std::strtof(values.c_str(), &end);
-                // std::cout << date << std::endl;
                 date.erase(std::remove_if(date.begin(), date.end(), std::bind2nd(std::equal_to<char>(), '-')), date.end());
                 int datei = atoi(date.c_str());
-                (void)datei;
                 _dataDate.insert(std::make_pair(datei, value));
-                (void)value;
             }
         }
-        // for(std::map<std::string, std::string>::iterator it = _dataDate.begin(); it != _dataDate.end(); it++)
-        // {
-        //     std::cout << it->first << " -> " << it->second << std::endl;
-        // }
     }
 }

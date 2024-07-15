@@ -13,6 +13,7 @@
 		"environment": [],
 		"externalConsole": false,
 		"MIMode": "gdb",
+		// Remove the "console" property
 		"setupCommands": [
 			{
 				"description": "Enable pretty-printing for gdb",

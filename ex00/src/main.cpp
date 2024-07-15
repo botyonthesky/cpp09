@@ -21,8 +21,6 @@ int main(int argc, char **argv)
         std::string filename = argv[1];
         BitcoinExchange btc(filename);
         btc.run();
-
     }
-    
     return (0);
 }

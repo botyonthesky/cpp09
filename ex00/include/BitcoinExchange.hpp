@@ -39,18 +39,19 @@ class BitcoinExchange
 
         void            run(void);
         void            dataBase(void);
-        void            dataInput(std::string fileName);
+        void            dataInput(void);
         bool            checkDate(std::string& date);
         bool            isLeap(int year);
         bool            isFebValid(int year, int month, int day);
         bool            isDayValid(int month, int day);
         int             checkValue(float value);
         bool            checkFormat(std::string str);
+        bool            checkDataBase(int year, int month, int day);
         void            displayResult(std::string date, float value);
         float           findResult(std::string date, float value);
+
         std::string     getFileName(void);
         void            setFileName(std::string fileName);
-
 
         class dataError : public std::exception
         {
