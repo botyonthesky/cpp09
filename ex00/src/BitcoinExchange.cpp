@@ -3,14 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: botyonthesky <botyonthesky@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 10:53:06 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/07/12 13:34:21 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/07/15 11:50:16 by botyonthesk      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/BitcoinExchange.hpp"
+
+BitcoinExchange::BitcoinExchange()
+{
+    // std::cout << "Bitcoin Exchange default constructor" << std::endl;
+}
 
 BitcoinExchange::BitcoinExchange(std::string fileName) : _fileName(fileName)
 {
@@ -60,8 +65,15 @@ void        BitcoinExchange::badInput::setMessage(const std::string& msg)
 
 void        BitcoinExchange::run(void)
 {
-    dataBase();
-    dataInput();
+    try
+    {
+        dataBase();
+        dataInput();
+    }
+    catch(const std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+    }
 }
 bool        BitcoinExchange::checkDate(std::string& date)
 {
@@ -215,9 +227,10 @@ void        BitcoinExchange::dataInput()
             }
             catch(const std::exception& e)
             {
-                std::cerr << e.what() << std::endl;
+                std::cout << e.what() << std::endl;
             }
         }
+        input.close();
     }
 }
 float       BitcoinExchange::findResult(std::string date, float value)
@@ -275,5 +288,6 @@ void        BitcoinExchange::dataBase()
                 _dataDate.insert(std::make_pair(datei, value));
             }
         }
+        _dataBase.close();
     }
 }

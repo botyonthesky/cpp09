@@ -15,6 +15,7 @@
         "cstdint": "cpp",
         "cstdio": "cpp",
         "cstdlib": "cpp",
+        "cstring": "cpp",
         "cwchar": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",
@@ -48,8 +49,9 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "map": "cpp",
         "fstream": "cpp",
+        "list": "cpp",
+        "map": "cpp",
         "sstream": "cpp"
     }
 }

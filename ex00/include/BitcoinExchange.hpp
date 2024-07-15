@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: botyonthesky <botyonthesky@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 10:52:36 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/07/12 11:52:45 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/07/15 10:37:32 by botyonthesk      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <sstream>
 #include <cstdlib>
 #include <cctype>
-#include <string>
 #include <algorithm>
 #include <map>
 
@@ -29,6 +28,7 @@ class BitcoinExchange
         std::string                         _fileName;
         std::ifstream                       _dataBase;                     
         std::map<int, float>                _dataDate;
+        BitcoinExchange();
             
     public:
         
