@@ -6,7 +6,7 @@
 /*   By: botyonthesky <botyonthesky@student.42.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 10:05:14 by botyonthesk       #+#    #+#             */
-/*   Updated: 2024/07/15 16:55:08 by botyonthesk      ###   ########.fr       */
+/*   Updated: 2024/07/16 16:25:01 by botyonthesk      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ RPN::RPN()
 
 RPN::RPN(std::string input) : _input(input)
 {
-    std::cout << "RPN cosntructor" << std::endl;
+    std::cout << "RPN constructor" << std::endl;
 }
 
 RPN::RPN(const RPN& other) :  _input(other._input), _stack(other._stack)
@@ -118,6 +118,8 @@ int     RPN::division(int a, int b)
         throw DivisionByZero();
     return (a / b);
 }
+
+
 void    RPN::makeCalcul(std::string input)
 {
     std::stack<int> numStack;
@@ -127,8 +129,10 @@ void    RPN::makeCalcul(std::string input)
     {
         if (isOpe(token))
         {
+            if (numStack.size() < 2)
+                throw NotEnoughOpe();
             int b = numStack.top();
-            numStack.pop();
+            numStack.pop();    
             int a = numStack.top();
             numStack.pop();
             if (token == "+")
@@ -152,6 +156,7 @@ void    RPN::run(void)
     {
         manageInput(_input);
         checkInput();
+        
         makeCalcul(_input);
     }
     catch(const std::exception& e)
