@@ -1,0 +1,42 @@
+{
+	"configurations": [
+	{
+		"name": "(gdb) RPN",
+		"type": "cppdbg",
+		"request": "launch",
+		"program": "${workspaceRoot}/RPN",
+		"args": [
+			"7 7 * 7 -",
+		],
+		"stopAtEntry": false,
+		"cwd": "${workspaceRoot}",
+		"environment": [],
+		"externalConsole": false,
+		"MIMode": "gdb",
+		// Remove the "console" property
+		"setupCommands": [
+			{
+				"description": "Enable pretty-printing for gdb",
+				"text": "-enable-pretty-printing",
+				"ignoreFailures": true
+			},
+			{
+				"description": "Set Disassembly Flavor to Intel",
+				"text": "set disassembly-flavor intel"
+			},
+			{
+				"description": "Set pagination off",
+				"text": "set pagination off"
+			}
+		],
+		"miDebuggerPath": "/usr/bin/gdb",
+		"miDebuggerArgs": "-ex 'tty /dev/pts/0'",
+		"logging": {
+			"trace": true,
+			"traceResponse": true,
+			"engineLogging": true
+		},
+		"preLaunchTask": "RPN"
+	}
+]
+}

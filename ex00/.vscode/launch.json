@@ -1,0 +1,32 @@
+{
+	"configurations": [
+	{
+		"name": "(gdb) btc",
+		"type": "cppdbg",
+		"request": "launch",
+		"program": "${workspaceRoot}/btc",
+		"args": [
+			"otherinput.txt",
+		],
+		"stopAtEntry": false,
+		"cwd": "${workspaceRoot}",
+		"environment": [],
+		"externalConsole": false,
+		"MIMode": "gdb",
+		// Remove the "console" property
+		"setupCommands": [
+			{
+				"description": "Enable pretty-printing for gdb",
+				"text": "-enable-pretty-printing",
+				"ignoreFailures": true
+			},
+			{
+				"description": "Set Disassembly Flavor to Intel",
+				"text": "-gdb-set disassembly-flavor intel",
+				"ignoreFailures": true
+			}
+		],
+		"preLaunchTask": "btc"
+	}
+	]
+}
