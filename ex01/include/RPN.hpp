@@ -6,7 +6,7 @@
 /*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 08:23:19 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/08/19 08:28:20 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/08/30 10:32:27 by tmaillar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,15 @@ class RPN
         
                 std::string                 _input;
                 std::stack<std::string>     _stack;  
+                
                 RPN();
                 
-                void    manageInput(std::string input);
-                bool    checkToken(std::string token);
                 void    checkInput(void);
-                bool    isOpe(std::string token);
+                void    manageInput(std::string input);
                 void    makeCalcul(std::string input);
+                bool    checkToken(std::string token);
+                bool    isOpe(std::string token);
+
                 int     addition(int a, int b);
                 int     soustraction(int a, int b);
                 int     multiplication(int a, int b);

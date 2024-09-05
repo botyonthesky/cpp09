@@ -6,13 +6,13 @@
 #    By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/10 10:52:01 by tmaillar          #+#    #+#              #
-#    Updated: 2024/07/11 15:17:39 by tmaillar         ###   ########.fr        #
+#    Updated: 2024/08/20 06:58:00 by tmaillar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME 			:= btc
 
-CXX				:= g++
+CXX				:= c++
 CXXFLAGS 		:= -std=c++98 -g -Wall -Wextra -Werror
 CPPFLAGS		+= -I./include
 CPPFLAGS		+= -MMD -MP -MF $(@:.o=.d)

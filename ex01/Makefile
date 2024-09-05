@@ -6,13 +6,13 @@
 #    By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/15 10:05:02 by botyonthesk       #+#    #+#              #
-#    Updated: 2024/08/19 07:44:06 by tmaillar         ###   ########.fr        #
+#    Updated: 2024/08/30 10:45:54 by tmaillar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME 			:= RPN
 
-CXX				:= g++
+CXX				:= c++
 CXXFLAGS 		:= -std=c++98 -g -Wall -Wextra -Werror
 CPPFLAGS		+= -I./include
 CPPFLAGS		+= -MMD -MP -MF $(@:.o=.d)

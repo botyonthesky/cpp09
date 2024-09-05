@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: botyonthesky <botyonthesky@student.42.f    +#+  +:+       +#+         #
+#    By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/16 10:50:15 by botyonthesk       #+#    #+#              #
-#    Updated: 2024/07/16 10:50:33 by botyonthesk      ###   ########.fr        #
+#    Updated: 2024/09/05 07:01:36 by tmaillar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME 			:= PmergeMe
 
-CXX				:= g++
+CXX				:= c++
 CXXFLAGS 		:= -std=c++98 -g -Wall -Wextra -Werror
 CPPFLAGS		+= -I./include
 CPPFLAGS		+= -MMD -MP -MF $(@:.o=.d)

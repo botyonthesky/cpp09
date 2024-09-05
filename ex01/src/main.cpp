@@ -6,7 +6,7 @@
 /*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 08:23:06 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/08/19 08:26:42 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/08/30 10:47:38 by tmaillar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@ int main(int argc, char **argv)
         std::cout << "Only one argv please, usage : \"./RPN \"calcul\" " << std::endl;
     else
     {
-        std::string calcul;
-        calcul = argv[1];
-        RPN polishNotation(calcul);
+        RPN polishNotation(argv[1]);
         polishNotation.run();
     }
     return (0);

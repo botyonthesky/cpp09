@@ -6,7 +6,7 @@
 /*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 08:29:36 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/08/19 08:56:33 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/09/03 08:28:37by tmaillar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,10 @@ PmergeMe& PmergeMe::operator=(const PmergeMe& other)
         this->timeDeque = other.timeDeque;
         this->timeVector = other.timeVector;
         this->timeInput = other.timeInput;
+        this->_firstArrD = other._firstArrD;
+        this->_secondArrD = other._secondArrD;
+        this->_firstArrV = other._firstArrV;
+        this->_secondArrV = other._secondArrV;
     }
     return (*this);
 }
@@ -40,68 +44,50 @@ PmergeMe::~PmergeMe()
 {
 }
 
-void    PmergeMe::addInput(int argc, char **argv)
-{
-    struct timeval begin, end;
-    gettimeofday(&begin, 0);
-    for (int i = 1; i < argc; i++)
-    {
-        char *end;
-        long num = std::strtol(argv[i], &end, 10);
-        if (*end != '\0' || num < 0)
-            throw NotPositiveNumber();
-        if (num > INT_MAX)
-            throw NotInt();
-        vect.push_back(static_cast<int>(num));
-        deque.push_back(static_cast<int>(num));
-    }
-    gettimeofday(&end, 0);
-    long sec = end.tv_sec - begin.tv_sec;
-    long msec = end.tv_usec - begin.tv_usec;
-    double timer = sec * 1e6 + msec;
-    timeInput = timer;
-}
+
+
 
 void    PmergeMe::vectorMerge(int first, int mid, int second)
 {
     int size1 = mid - first + 1;
     int size2 = second - mid;
-    std::vector<int> firstArr(size1);
-    std::vector<int> secondArr(size2);
+    _firstArrV.resize(size1);
+    _secondArrV.resize(size2);
 
     for (int i = 0; i < size1; i++)
-        firstArr[i] = vect[first + i];
-    
+        _firstArrV[i] = vect[first + i];
     for (int j = 0; j < size2; j++)
-        secondArr[j] = vect[mid + 1 + j];
-
+        _secondArrV[j] = vect[mid + 1 + j];
+    vectorMergeLoop(first, size1, size2);
+}
+void    PmergeMe::vectorMergeLoop(int first, int size1, int size2)
+{
     int i = 0;
     int j = 0;
     int k = first;
-
     while (i < size1 && j < size2)
     {
-        if (firstArr[i] <= secondArr[j])
+        if (_firstArrV[i] <= _secondArrV[j])
         {
-            vect[k] = firstArr[i];
+            vect[k] = _firstArrV[i];
             i++;
         }
         else
         {
-            vect[k] = secondArr[j];
+            vect[k] = _secondArrV[j];
             j++;
         }
         k++;
     }
     while (i < size1)
     {
-        vect[k] = firstArr[i];
+        vect[k] = _firstArrV[i];
         i++;
         k++;
     }
     while (j < size2)
     {
-        vect[k] = secondArr[j];
+        vect[k] = _secondArrV[j];
         j++;
         k++;
     }
@@ -111,7 +97,7 @@ void   PmergeMe::mergeInsertionSortV(int first, int second)
 {
     if (first < second)
     {
-        if (second - first <= 16)
+        if (second - first <= 2)
             insertionSortV(first, second);
         else
         {
@@ -154,46 +140,47 @@ void     PmergeMe::dequeMerge(int first, int mid, int second)
 {
     int size1 = mid - first + 1;
     int size2 = second - mid;
-    std::deque<int> firstArr(size1);
-    std::deque<int> secondArr(size2);
-
+    _firstArrD.resize(size1);
+    _secondArrD.resize(size2);
     for (int i = 0; i < size1; i++)
-        firstArr[i] = deque[first + i];
-    
+        _firstArrD[i] = deque[first + i];
     for (int j = 0; j < size2; j++)
-        secondArr[j] = deque[mid + 1 + j];
+        _secondArrD[j] = deque[mid + 1 + j];
+    dequeMergeLoop(first, size1, size2);
+}
 
+void    PmergeMe::dequeMergeLoop(int first, int size1, int size2)
+{
     int i = 0;
     int j = 0;
     int k = first;
-
     while (i < size1 && j < size2)
     {
-        if (firstArr[i] <= secondArr[j])
+        if (_firstArrD[i] <= _secondArrD[j])
         {
-            deque[k] = firstArr[i];
+            deque[k] = _firstArrD[i];
             i++;
         }
         else
         {
-            deque[k] = secondArr[j];
+            deque[k] = _secondArrD[j];
             j++;
         }
         k++;
     }
     while (i < size1)
     {
-        deque[k] = firstArr[i];
+        deque[k] = _firstArrD[i];
         i++;
         k++;
     }
     while (j < size2)
     {
-        deque[k] = secondArr[j];
+        deque[k] = _secondArrD[j];
         j++;
         k++;
     }
-}
+}   
 
 void     PmergeMe::insertionSortD(int first, int second)
 {
@@ -214,7 +201,7 @@ void     PmergeMe::mergeInsertionSortD(int first, int second)
 {
     if (first < second)
     {
-        if (second - first <= 16)
+        if (second - first <= 2)
             insertionSortD(first, second);
         else
         {
@@ -237,6 +224,44 @@ void    PmergeMe::algoDeque()
     double timer = (sec * 1e6) + msec;
     timeDeque = timeInput + timer;
 }
+long	PmergeMe::checkInput(std::string input)
+{
+	char *end;
+	for (size_t i = 0; i < input.size();)
+	{
+		if (input[i] != '-' && input[i] != '+')
+		{
+			if (!std::isdigit(input[i]))
+				throw WrongInput();
+			i++;
+		}
+		else	
+			i++;
+	}
+	long num = std::strtol(input.c_str(), &end, 10);
+	if (*end != '\0' || num < 0)
+		throw NotPositiveNumber();
+	if (num > INT_MAX)
+		throw NotInt();
+	return (num);
+}
+
+void    PmergeMe::addInput(int argc, char **argv)
+{
+    struct timeval begin, end;
+    gettimeofday(&begin, 0);
+    for (int i = 1; i < argc; i++)
+    {
+		long num = checkInput(argv[i]);
+        vect.push_back(static_cast<int>(num));
+        deque.push_back(static_cast<int>(num));
+    }
+    gettimeofday(&end, 0);
+    long sec = end.tv_sec - begin.tv_sec;
+    long msec = end.tv_usec - begin.tv_usec;
+    double timer = sec * 1e6 + msec;
+    timeInput = timer;
+}
 
 void    PmergeMe::run()
 {
@@ -246,8 +271,8 @@ void    PmergeMe::run()
     algoDeque();
     std::cout << "After: ";
     printDeque();
-    printInfoV();
-    printInfoD();
+    printInfoVector();
+    printInfoDeque();
 }
 
 void    PmergeMe::printVector()
@@ -259,7 +284,7 @@ void    PmergeMe::printVector()
     std::cout << std::endl;  
 }
 
-void    PmergeMe::printInfoV()
+void    PmergeMe::printInfoVector()
 {
     std::cout << "Time to process a range of " << vect.size() << " elements with std::vector : ";
     std::cout << std::fixed;
@@ -275,7 +300,7 @@ void    PmergeMe::printDeque()
     std::cout << std::endl;
 }
 
-void    PmergeMe::printInfoD()
+void    PmergeMe::printInfoDeque()
 {
     std::cout << "Time to process a range of " << deque.size() << " elements with std::deque : ";
     std::cout << std::fixed;
@@ -291,4 +316,9 @@ const char*     PmergeMe::NotPositiveNumber::what() const throw()
 const char*     PmergeMe::NotInt::what() const throw()
 {
     return ("Error : Value must not exceed INT MAX !");
+}
+
+const char*		PmergeMe::WrongInput::what() const throw()
+{
+	return ("Error : Wrong Input");
 }

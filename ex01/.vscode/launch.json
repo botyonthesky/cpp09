@@ -6,7 +6,7 @@
 		"request": "launch",
 		"program": "${workspaceRoot}/RPN",
 		"args": [
-			"7 7 * 7 -",
+			"7 + 3",
 		],
 		"stopAtEntry": false,
 		"cwd": "${workspaceRoot}",

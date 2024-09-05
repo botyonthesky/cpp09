@@ -6,7 +6,7 @@
 /*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 08:22:52 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/08/19 08:27:46 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/08/30 10:46:38 by tmaillar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,15 +40,27 @@ RPN::~RPN()
 {
 }
 
+void    RPN::run()
+{
+    try
+    {
+        manageInput(_input);
+        checkInput();
+        makeCalcul(_input);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }   
+}
+
 void    RPN::manageInput(std::string input)
 {
     std::stack<std::string> tokens;
     std::stringstream ss(input);
     std::string token;
     while (std::getline(ss, token, ' '))
-    {
         tokens.push(token);
-    }
     _stack = tokens;
 }
 
@@ -127,7 +139,7 @@ void    RPN::makeCalcul(std::string input)
         if (isOpe(token))
         {
             if (numStack.size() < 2)
-                throw NotEnoughOpe();
+                throw WrongInput();
             int b = numStack.top();
             numStack.pop();    
             int a = numStack.top();
@@ -145,20 +157,6 @@ void    RPN::makeCalcul(std::string input)
             numStack.push(std::atoi(token.c_str()));
     }    
     std::cout << numStack.top() << std::endl;   
-}
-
-void    RPN::run()
-{
-    try
-    {
-        manageInput(_input);
-        checkInput();
-        makeCalcul(_input);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }   
 }
 
 const char*     RPN::WrongInput::what() const throw()

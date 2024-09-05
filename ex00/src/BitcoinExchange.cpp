@@ -6,7 +6,7 @@
 /*   By: tmaillar <tmaillar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 10:53:06 by tmaillar          #+#    #+#             */
-/*   Updated: 2024/08/19 07:30:32 by tmaillar         ###   ########.fr       */
+/*   Updated: 2024/08/30 09:35:00 by tmaillar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,29 +40,6 @@ BitcoinExchange::~BitcoinExchange()
 {
 }
 
-std::string BitcoinExchange::getFileName(void)
-{
-    return (_fileName);
-}
-
-void        BitcoinExchange::setFileName(std::string fileName)
-{
-    _fileName = fileName;
-}
-
-const char* BitcoinExchange::dataError::what() const throw()
-{
-    return ("Error on opening the file data.csv");
-}
-const char* BitcoinExchange::badInput::what() const throw()
-{
-    return (_msg.c_str());
-}
-void        BitcoinExchange::badInput::setMessage(const std::string& msg)
-{
-    _msg = msg;
-}
-
 void        BitcoinExchange::run(void)
 {
     try
@@ -72,9 +49,113 @@ void        BitcoinExchange::run(void)
     }
     catch(const std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 }
+void        BitcoinExchange::dataBase()
+{
+    _dataBase.open("data.csv");
+    if (!_dataBase)
+        throw dataError();
+    else
+    {
+        size_t sepa;
+        std::string line;
+        char* end;
+        while(std::getline(_dataBase, line))
+        {
+            if (line == "date,exchange_rate")
+                continue;
+            sepa = line.find(",");
+            if (sepa != std::string::npos)
+            {
+                std::string date = line.substr(0, sepa);
+                std::string values = line.substr(sepa + 1);
+                float value = std::strtof(values.c_str(), &end);
+                date.erase(std::remove_if(date.begin(), date.end(), std::bind2nd(std::equal_to<char>(), '-')), date.end());
+                int datei = atoi(date.c_str());
+                _dataDate.insert(std::make_pair(datei, value));
+            }
+        }
+        _dataBase.close();
+    }
+}
+
+void        BitcoinExchange::dataInput()
+{
+    std::ifstream input;
+    input.open(_fileName.c_str());
+    if (!input)
+        throw dataError();
+    else
+    {
+        size_t sepa = 0;
+        std::string line;
+        handleInput(input, line, sepa);
+    }
+}
+
+void        BitcoinExchange::handleInput(std::ifstream& input, std::string& line, size_t sepa)
+{
+    while(std::getline(input, line))
+    {
+        if (line == "date | value")
+            continue ;
+        try
+        {
+            if (!checkFormat(line))
+            {
+                badInput ex;
+                ex.setMessage("Error: bad input => " + line);
+                std::cout << "";
+                throw ex;
+            }
+            line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+            sepa = line.find("|");
+            if (sepa != std::string::npos)
+            {
+                std::string date = line.substr(0, sepa);
+                if (!checkDate(date))
+                {
+                    badInput ex;
+                    ex.setMessage("Error: bad input => " + date);
+                    throw ex;
+                }
+                handleAndDisplay(line, date, sepa);
+            }
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
+    }
+    input.close();
+}
+
+void        BitcoinExchange::handleAndDisplay(std::string& line, std::string& date, size_t sepa)
+{
+    std::string svalue = line.substr(sepa + 1, std::string::npos);
+    char *end;
+    float value = std::strtof(svalue.c_str(), &end);
+    handleValue(value);
+    displayResult(date, value);   
+}
+void        BitcoinExchange::handleValue(float value)
+{
+    if (checkValue(value) == 1)
+    {
+        badInput ex;
+        ex.setMessage("Error : not a positive number.");
+        throw ex;
+    }
+    if (checkValue(value) == 2)
+    {
+        badInput ex;
+        ex.setMessage("Error : too large number.");
+        throw ex;
+    }
+}
+
 bool        BitcoinExchange::checkDate(std::string& date)
 {
     if (date.size() != 10 || date[4] != '-' || date[7] != '-')
@@ -96,8 +177,6 @@ bool        BitcoinExchange::checkDate(std::string& date)
 
 bool        BitcoinExchange::checkDataBase(int year, int month, int day)
 {   
-    if (year < 2009 || year > 2024) // a check !!!!!!!!!!!!!!
-        return (false);
     if (month < 1 || month > 12)
         return (false);
     if (year == 2009 && month == 01 && day < 2)
@@ -140,15 +219,15 @@ bool        BitcoinExchange::isLeap(int year)
         if (year % 100 == 0)
         {
             if (year % 400 == 0)
-                return true;
+                return (true);
             else 
                 return (false);
         }
         else 
-            return true;
+            return (true);
     }
     else 
-        return false;
+        return (false);
 }
 
 int         BitcoinExchange::checkValue(float value)
@@ -173,66 +252,7 @@ bool        BitcoinExchange::checkFormat(std::string str)
     return (true);
 }
 
-void        BitcoinExchange::dataInput()
-{
-    std::ifstream input;
-    input.open(_fileName.c_str());
-    if (!input)
-        throw dataError();
-    else
-    {
-        size_t sepa;
-        std::string line;
-        while(std::getline(input, line))
-        {
-            if (line == "date | value")
-                continue ;
-            try
-            {
-                if (!checkFormat(line))
-                {
-                    badInput ex;
-                    ex.setMessage("Error: bad input => " + line);
-                    std::cout << "";
-                    throw ex;
-                }
-                line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
-                sepa = line.find("|");
-                if (sepa != std::string::npos)
-                {
-                    std::string date = line.substr(0, sepa);
-                    if (!checkDate(date))
-                    {
-                        badInput ex;
-                        ex.setMessage("Error: bad input => " + date);
-                        throw ex;
-                    }
-                    std::string svalue = line.substr(sepa + 1, std::string::npos);
-                    char *end;
-                    float value = std::strtof(svalue.c_str(), &end);
-                    if (checkValue(value) == 1)
-                    {
-                        badInput ex;
-                        ex.setMessage("Error : not a positive number.");
-                        throw ex;
-                    }
-                    if (checkValue(value) == 2)
-                    {
-                        badInput ex;
-                        ex.setMessage("Error : too large number.");
-                        throw ex;
-                    }
-                    displayResult(date, value);
-                }
-            }
-            catch(const std::exception& e)
-            {
-                std::cout << e.what() << std::endl;
-            }
-        }
-        input.close();
-    }
-}
+
 float       BitcoinExchange::findResult(std::string date, float value)
 {
     float result = 0;
@@ -263,35 +283,27 @@ void        BitcoinExchange::displayResult(std::string date, float value)
 {
     float result = findResult(date, value);
     std::cout << date << " => " << value << " = " << result << std::endl;
-    // std::cout << findResult(date, value) << std::endl;
 }
 
-
-void        BitcoinExchange::dataBase()
+std::string BitcoinExchange::getFileName(void)
 {
-    _dataBase.open("data.csv");
-    if (!_dataBase)
-        throw dataError();
-    else
-    {
-        size_t sepa;
-        std::string line;
-        char* end;
-        while(std::getline(_dataBase, line))
-        {
-            if (line == "date,exchange_rate")
-                continue;
-            sepa = line.find(",");
-            if (sepa != std::string::npos)
-            {
-                std::string date = line.substr(0, sepa);
-                std::string values = line.substr(sepa + 1);
-                float value = std::strtof(values.c_str(), &end);
-                date.erase(std::remove_if(date.begin(), date.end(), std::bind2nd(std::equal_to<char>(), '-')), date.end());
-                int datei = atoi(date.c_str());
-                _dataDate.insert(std::make_pair(datei, value));
-            }
-        }
-        _dataBase.close();
-    }
+    return (_fileName);
+}
+
+void        BitcoinExchange::setFileName(std::string fileName)
+{
+    _fileName = fileName;
+}
+
+const char* BitcoinExchange::dataError::what() const throw()
+{
+    return ("Error on opening the file data.csv");
+}
+const char* BitcoinExchange::badInput::what() const throw()
+{
+    return (_msg.c_str());
+}
+void        BitcoinExchange::badInput::setMessage(const std::string& msg)
+{
+    _msg = msg;
 }
